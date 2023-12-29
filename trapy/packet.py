@@ -8,14 +8,16 @@ class Packet:
         self.tcp_ack_seq = None
         self.tcp_offset_res = None
         
-        self.tcp_flag_syn = None
-        self.tcp_flag_ack = None
-        self.tcp_flag_rst = None
-        self.tcp_flag_psh = None
-        self.tcp_flag_urg = None
-        self.tcp_flag_fin = None
+        # self.tcp_flag_syn = 0
+        # self.tcp_flag_ack = 0
+        # self.tcp_flag_rst = 0
+        # self.tcp_flag_psh = 0
+        # self.tcp_flag_urg = 0
+        # self.tcp_flag_fin = 0
         
-        self._tcp_flags = None
+        # self._tcp_flags = 0
+        
+        self.tcp_flags = 0
         
         self.tcp_window = None
         self.tcp_check = None
@@ -42,14 +44,14 @@ class Packet:
         self.ip_header[8] = self.source_host
         self.ip_header[9] = self.dest_host
         
-        self._tcp_flags = (
-            self.tcp_fin
-            + (self.tcp_syn << 1)
-            + (self.tcp_rst << 2)
-            + (self.tcp_psh << 3)
-            + (self.tcp_ack << 4)
-            + (self.tcp_urg << 5)
-        )
+        # self._tcp_flags = (
+        #     self.tcp_fin
+        #     + (self.tcp_syn << 1)
+        #     + (self.tcp_rst << 2)
+        #     + (self.tcp_psh << 3)
+        #     + (self.tcp_ack << 4)
+        #     + (self.tcp_urg << 5)
+        # )
     
     def build(self):
         self._refresh()
