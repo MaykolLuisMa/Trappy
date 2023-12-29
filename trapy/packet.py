@@ -104,7 +104,7 @@ class Packet:
         if (tcp_seq != None): self.tcp_seq = tcp_seq
         if (tcp_ack_seq != None): self.tcp_ack_seq = tcp_ack_seq
         if (tcp_offset_res != None): self.tcp_offset_res = tcp_offset_res
-        if (tcp_flags != None): self.tcp_flags = tcp_flags
+        if (tcp_flags != 0): self.tcp_flags = tcp_flags
         if (tcp_window != None): self.tcp_window = tcp_window
         if (tcp_check != None): self.tcp_check = tcp_check
         if (tcp_urg_ptr != None): self.tcp_urg_ptr = tcp_urg_ptr
