@@ -40,8 +40,8 @@ class Conn:
     #Devuelve una tupla con el paquete recibido, ya traducido y el address de donde vino
     def recv(self, timeout=0.5) -> Tuple[Packet, Tuple[str, int]] | None:
         self.socket.settimeout(timeout)
-        timer = Chronometer(timeout)
-        timer.start()
+        timer = Chronometer()
+        timer.start(timeout)
         while True:
             packet = Packet()
             try:
