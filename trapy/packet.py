@@ -2,8 +2,8 @@ from struct import pack, unpack
 
 class Packet:
     def __init__(self):
-        self.tcp_source = None
-        self.tcp_dest = None
+        self.tcp_source_port = None
+        self.tcp_dest_port = None
         self.tcp_seq = None
         self.tcp_ack_seq = None
         self.tcp_offset_res = None
@@ -23,8 +23,8 @@ class Packet:
         self.tcp_check = None
         self.tcp_urg_ptr = None
         
-        self.source_host = None
-        self.dest_host = None
+        self.ip_source_host = None
+        self.ip_dest_host = None
         
         self._ip_header = None
         
@@ -36,13 +36,13 @@ class Packet:
         self.source_host = self.ip_header[8]
         self.dest_host = self.ip_header[9]
         
-        self.tcp_source, self.tcp_dest, self.tcp_seq, self.tcp_ack_seq, self.tcp_offset_res, self.tcp_flags, self.tcp_window, self.tcp_check, self.tcp_urg_ptr, = unpack("!HHLLBBHHH", packet_from_raw[20:40])
+        self.tcp_source_port, self.tcp_dest_port, self.tcp_seq, self.tcp_ack_seq, self.tcp_offset_res, self.tcp_flags, self.tcp_window, self.tcp_check, self.tcp_urg_ptr, = unpack("!HHLLBBHHH", packet_from_raw[20:40])
         
         self.data = packet_from_raw[40:]
     
     def _refresh(self):
-        self.ip_header[8] = self.source_host
-        self.ip_header[9] = self.dest_host
+        self.ip_header[8] = self.ip_source_host
+        self.ip_header[9] = self.ip_dest_host
         
         # self._tcp_flags = (
         #     self.tcp_fin
@@ -57,8 +57,8 @@ class Packet:
         self._refresh()
         tcp_header = pack(
             "!HHLLBBHHH",
-            self.tcp_source,
-            self.tcp_dest,
+            self.tcp_source_port,
+            self.tcp_dest_port,
             self.tcp_seq,
             self.tcp_ack_seq,
             self.tcp_offset_res,
