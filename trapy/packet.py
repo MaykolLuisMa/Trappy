@@ -83,4 +83,33 @@ class Packet:
         
         return ip_header + tcp_header + self.data
 
+    def update(self, 
+        tcp_source_port = None,
+        tcp_dest_port = None,
+        tcp_seq = None,
+        tcp_ack_seq = None,
+        tcp_offset_res = None,        
+        tcp_flags = 0,
+        tcp_window = None,
+        tcp_check = None,
+        tcp_urg_ptr = None,
+        
+        ip_source_host = None,
+        ip_dest_host = None,
 
+        data = None
+        ):
+        if (tcp_source_port != None): self.tcp_source_port = tcp_source_port
+        if (tcp_dest_port != None): self.tcp_dest_port = tcp_dest_port
+        if (tcp_seq != None): self.tcp_seq = tcp_seq
+        if (tcp_ack_seq != None): self.tcp_ack_seq = tcp_ack_seq
+        if (tcp_offset_res != None): self.tcp_offset_res = tcp_offset_res
+        if (tcp_flags != None): self.tcp_flags = tcp_flags
+        if (tcp_window != None): self.tcp_window = tcp_window
+        if (tcp_check != None): self.tcp_check = tcp_check
+        if (tcp_urg_ptr != None): self.tcp_urg_ptr = tcp_urg_ptr
+        
+        if (ip_source_host != None): self.ip_source_host = ip_source_host
+        if (ip_dest_host != None): self.ip_dest_host = ip_dest_host
+        
+        if (data != None): self.data = data
