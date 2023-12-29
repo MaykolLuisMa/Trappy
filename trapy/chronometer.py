@@ -26,6 +26,13 @@ class Chronometer:
         self.start_time = time.time()
         self.finished = False
         
+    def time_left(self):
+        if (self.finished == None):
+            return -1
+        if (self.timeout()):
+            return -1
+        return self.time_to_wait - (time.time() - self.start_time)
+    
     def timeout(self):
         if (self.finished == None): 
             return False
