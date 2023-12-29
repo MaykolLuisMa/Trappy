@@ -41,8 +41,8 @@ class Packet:
         self.data = packet_from_raw[40:]
     
     def _refresh(self):
-        self.ip_header[8] = self.ip_source_host
-        self.ip_header[9] = self.ip_dest_host
+        self._ip_header[8] = self.ip_source_host
+        self._ip_header[9] = self.ip_dest_host
         
         # self._tcp_flags = (
         #     self.tcp_fin
@@ -69,16 +69,16 @@ class Packet:
         )
         ip_header = pack(
             "!BBHHHBBH4s4s", 
-            self.ip_header[0],
-            self.ip_header[1],
-            self.ip_header[2],
-            self.ip_header[3],
-            self.ip_header[4],
-            self.ip_header[5],
-            self.ip_header[6],
-            self.ip_header[7],
-            self.ip_header[8],
-            self.ip_header[9],
+            self._ip_header[0],
+            self._ip_header[1],
+            self._ip_header[2],
+            self._ip_header[3],
+            self._ip_header[4],
+            self._ip_header[5],
+            self._ip_header[6],
+            self._ip_header[7],
+            self._ip_header[8],
+            self._ip_header[9],
         )
         
         return ip_header + tcp_header + self.data
