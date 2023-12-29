@@ -18,6 +18,7 @@ class Conn:
 
     def close(self):
         #Aqui reiniciaremos todos los atributos
+        self.socket.close()
         self.host = None
         self.port = None
         self.isClosed = True
