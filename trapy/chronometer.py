@@ -1,3 +1,5 @@
+import time
+
 class Chronometer:
     def __init__(self):
         self.time_to_wait = 0
