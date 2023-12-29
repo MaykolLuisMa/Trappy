@@ -4,7 +4,7 @@ import utils
 def listen(address: str) -> Conn:
     host, port = utils.parse_address(address)
     conn = Conn()
-    conn.socket.bind(host, port)
+    conn.bind(host, port)
     return conn
 
 def accept(conn) -> Conn:

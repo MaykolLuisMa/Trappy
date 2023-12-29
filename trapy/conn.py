@@ -8,8 +8,10 @@ class Conn:
     def __init__(self, sock=None):
         if sock is None:
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-        self.host = None
-        self.port = None
+        self.source_host = None
+        self.source_port = None
+        self.dest_host = None
+        self.dest_port = None
         self.isClosed = False
 
         self.socket = sock
