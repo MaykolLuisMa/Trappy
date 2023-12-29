@@ -49,7 +49,7 @@ class Conn:
             except socket.timeout:
                 return None
             packet.get(packet_raw)
-            if (packet.dest_port == self.source_port):
+            if (packet.tcp_dest_port == self.source_port):
                 return (packet, address)
             self.socket.settimeout(timer.time_left)
 
