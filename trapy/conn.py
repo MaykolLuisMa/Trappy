@@ -55,7 +55,7 @@ class Conn:
 
     #Envia un paquete ya listo para enviar. Devuelve la cantidad de bits enviados
     def send(self, data) -> int:
-        if self.dest.host == None:
+        if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
         return self.socket.sendto(data, (self.dest_host, self.dest_port))
 
