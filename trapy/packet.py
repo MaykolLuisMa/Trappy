@@ -6,7 +6,7 @@ class Packet:
         self.tcp_dest_port = None
         self.tcp_seq_num = None
         self.tcp_ack_num = None
-        self.tcp_offset_res = None
+        self.tcp_offset_res = 80
         
         # self.tcp_flag_syn = 0
         # self.tcp_flag_ack = 0
@@ -17,7 +17,7 @@ class Packet:
         
         # self._tcp_flags = 0
         
-        self.tcp_flags = 0
+        self.tcp_flags = 2
         
         self.tcp_window = 4209
         self.tcp_check = None
@@ -29,7 +29,7 @@ class Packet:
         #el header checksum ni idea de como hacerlo
         self._ip_header = [69, 0, 10240, 52651, 0, 1600, 0, None, None] 
         
-        self.data = None
+        self.data = b'\x00\x00'
     
     def get(self, packet_from_raw):
         self.ip_header = unpack("!BBHHHBBH4s4s", packet_from_raw[0:20]) 
@@ -64,7 +64,7 @@ class Packet:
             self.tcp_offset_res,
             self.tcp_flags,
             self.tcp_window,
-            0,
+            self.tcp_check,
             self.tcp_urg_ptr,
         )
         return tcp_header
@@ -72,6 +72,7 @@ class Packet:
     def build(self):
         self._refresh()
         
+        self.update(tcp_check=0)
         tcp_header = self.build_tcp_header()
         checksum = utils.make_checksum(tcp_header + self.data)
         self.update(tcp_check=checksum)
