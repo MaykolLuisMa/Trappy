@@ -4,8 +4,8 @@ class Packet:
     def __init__(self):
         self.tcp_source_port = None
         self.tcp_dest_port = None
-        self.tcp_seq = None
-        self.tcp_ack_seq = None
+        self.tcp_seq_num = None
+        self.tcp_ack_num = None
         self.tcp_offset_res = None
         
         # self.tcp_flag_syn = 0
@@ -36,7 +36,7 @@ class Packet:
         self.source_host = self.ip_header[8]
         self.dest_host = self.ip_header[9]
         
-        self.tcp_source_port, self.tcp_dest_port, self.tcp_seq, self.tcp_ack_seq, self.tcp_offset_res, self.tcp_flags, self.tcp_window, self.tcp_check, self.tcp_urg_ptr, = unpack("!HHLLBBHHH", packet_from_raw[20:40])
+        self.tcp_source_port, self.tcp_dest_port, self.tcp_seq_num, self.tcp_ack_num, self.tcp_offset_res, self.tcp_flags, self.tcp_window, self.tcp_check, self.tcp_urg_ptr, = unpack("!HHLLBBHHH", packet_from_raw[20:40])
         
         self.data = packet_from_raw[40:]
     
@@ -59,8 +59,8 @@ class Packet:
             "!HHLLBBHHH",
             self.tcp_source_port,
             self.tcp_dest_port,
-            self.tcp_seq,
-            self.tcp_ack_seq,
+            self.tcp_seq_num,
+            self.tcp_ack_num,
             self.tcp_offset_res,
             self.tcp_flags,
             self.tcp_window,
@@ -86,8 +86,8 @@ class Packet:
     def update(self, 
         tcp_source_port = None,
         tcp_dest_port = None,
-        tcp_seq = None,
-        tcp_ack_seq = None,
+        tcp_seq_num = None,
+        tcp_ack_num = None,
         tcp_offset_res = None,        
         tcp_flags = 0,
         tcp_window = None,
@@ -101,8 +101,8 @@ class Packet:
         ):
         if (tcp_source_port != None): self.tcp_source_port = tcp_source_port
         if (tcp_dest_port != None): self.tcp_dest_port = tcp_dest_port
-        if (tcp_seq != None): self.tcp_seq = tcp_seq
-        if (tcp_ack_seq != None): self.tcp_ack_seq = tcp_ack_seq
+        if (tcp_seq_num != None): self.tcp_seq_num = tcp_seq_num
+        if (tcp_ack_num != None): self.tcp_ack_num = tcp_ack_num
         if (tcp_offset_res != None): self.tcp_offset_res = tcp_offset_res
         if (tcp_flags != 0): self.tcp_flags = tcp_flags
         if (tcp_window != None): self.tcp_window = tcp_window
