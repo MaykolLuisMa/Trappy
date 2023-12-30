@@ -33,10 +33,12 @@ class Conn:
             host = '127.0.0.1'
         self.source_host = host
         if (port == None):
-            port = 0 #Al hacer bind al puerto 0, el OS automaticamente nos encuentra un puerto libre
+            port = get_free_port()#Al hacer bind al puerto 0, el OS automaticamente nos encuentra un puerto libre
         self.socket.bind((self.source_host, port))
+        print("---------------- " + str(port))
+        print(self.socket.getsockname())
         self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
-    
+
     def set_destination(self, host, port):
         self.dest_host = host
         self.dest_port = port
@@ -66,3 +68,14 @@ class Conn:
 
 class ConnException(Exception):
     pass
+
+def get_free_port():
+   while True:
+       port = randint(1024, 65535)
+       with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+           try:
+               s.bind(("localhost", port))
+               s.close()
+               return port
+           except socket.error:
+               continue
