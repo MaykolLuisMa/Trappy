@@ -26,11 +26,12 @@ class Packet:
         self.tcp_check = None
         self.tcp_urg_ptr = 0
         
+        self._ip_check = None
         self.ip_source_host = None
         self.ip_dest_host = None
         
         #el header checksum ni idea de como hacerlo
-        self._ip_header = [60, 0, 40, 43981, 0, 64, 6, 0, None, None] 
+        self._ip_header = [60, 0, 40, 43981, 0, 64, 6] 
         
         self.data = b'\x00\x00'
     
@@ -71,16 +72,8 @@ class Packet:
             self.tcp_urg_ptr,
         )
         return tcp_header
-
-    def build(self):
-        self._refresh()
-        
-        self.update(tcp_check=0)
-        tcp_header = self.build_tcp_header()
-        checksum = utils.make_checksum(tcp_header + self.data)
-        self.update(tcp_check=checksum)
-        tcp_header = self.build_tcp_header()
-
+    
+    def build_ip_header(self):
         ip_header = pack(
             "!BBHHHBBH4s4s", 
             self._ip_header[0],
@@ -90,10 +83,26 @@ class Packet:
             self._ip_header[4],
             self._ip_header[5],
             self._ip_header[6],
-            self._ip_header[7],
-            self._ip_header[8],
-            self._ip_header[9],
+            self._ip_check,
+            self.ip_source_host,
+            self.ip_dest_host,
         )
+        return ip_header
+
+    def build(self):
+        self._refresh()
+        
+        self.update(tcp_check=0)
+        tcp_header = self.build_tcp_header()
+        checksum = utils.make_checksum(tcp_header + self.data)
+        self.update(tcp_check=checksum)
+        tcp_header = self.build_tcp_header()
+        
+        self.update(_ip_check=0)
+        ip_header = self.build_ip_header()
+        checksum = utils.make_checksum(ip_header)
+        self.update(_ip_check=checksum)
+        ip_header = self.build_ip_header()
         
         return ip_header + tcp_header + self.data
 
@@ -108,6 +117,7 @@ class Packet:
         tcp_check = None,
         tcp_urg_ptr = None,
         
+        _ip_check = None,
         ip_source_host = None,
         ip_dest_host = None,
 
@@ -123,6 +133,7 @@ class Packet:
         if (tcp_check != None): self.tcp_check = tcp_check
         if (tcp_urg_ptr != None): self.tcp_urg_ptr = tcp_urg_ptr
         
+        if (_ip_check != None): self._ip_check = _ip_check
         if (ip_source_host != None): self.ip_source_host = ip_source_host
         if (ip_dest_host != None): self.ip_dest_host = ip_dest_host
         
