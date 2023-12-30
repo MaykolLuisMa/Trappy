@@ -1,5 +1,6 @@
 from struct import pack, unpack
 import socket
+import utils
 
 class Packet:
     def __init__(self):
@@ -54,8 +55,7 @@ class Packet:
         #     + (self.tcp_urg << 5)
         # )
     
-    def build(self):
-        self._refresh()
+    def build_tcp_header(self):
         tcp_header = pack(
             "!HHLLBBHHH",
             self.tcp_source_port,
@@ -68,6 +68,16 @@ class Packet:
             self.tcp_check,
             self.tcp_urg_ptr,
         )
+        return tcp_header
+
+    def build(self):
+        self._refresh()
+        
+        tcp_header = self.build_tcp_header()
+        checksum = utils.make_checksum(tcp_header + self.data)
+        self.update(tcp_check=checksum)
+        tcp_header = self.build_tcp_header()
+
         ip_header = pack(
             "!BBHHHBBH4s4s", 
             self._ip_header[0],
