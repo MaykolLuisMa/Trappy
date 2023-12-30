@@ -15,6 +15,8 @@ class Conn:
         self.dest_host = None
         self.dest_port = None
         self.isClosed = False
+        self.seq_num = None #Considerar Hacerlos Random
+        self.ack = None     #Considerar Hacerlos Random
 
         self.socket = sock
 
