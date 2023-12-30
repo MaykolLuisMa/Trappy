@@ -17,7 +17,7 @@ class Packet:
         
         # self._tcp_flags = 0
         
-        self.tcp_flags = 2
+        self.tcp_flags = 0
         
         self.tcp_window = 28944
         self.tcp_check = None
