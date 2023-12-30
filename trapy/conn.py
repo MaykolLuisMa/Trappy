@@ -33,7 +33,7 @@ class Conn:
             host = '127.0.0.1'
         self.source_host = host
         if (port == None):
-            port = get_free_port()#Al hacer bind al puerto 0, el OS automaticamente nos encuentra un puerto libre
+            port = get_free_port()
         self.socket.bind((self.source_host, port))
         print("---------------- " + str(port))
         print(self.socket.getsockname())
