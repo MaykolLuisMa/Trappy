@@ -1,11 +1,14 @@
 from struct import pack, unpack
+import socket
 import utils
+
 class Packet:
     def __init__(self):
         self.tcp_source_port = None
         self.tcp_dest_port = None
         self.tcp_seq_num = None
         self.tcp_ack_num = None
+        
         self.tcp_offset_res = 80
         
         # self.tcp_flag_syn = 0
@@ -42,9 +45,9 @@ class Packet:
         self.data = packet_from_raw[40:]
     
     def _refresh(self):
-        self._ip_header[8] = self.ip_source_host
-        self._ip_header[9] = self.ip_dest_host
-        
+        self._ip_header[8] = socket.inet_aton(self.ip_source_host)
+        self._ip_header[9] = socket.inet_aton(self.ip_dest_host)
+
         # self._tcp_flags = (
         #     self.tcp_fin
         #     + (self.tcp_syn << 1)

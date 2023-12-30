@@ -11,7 +11,7 @@ class Chronometer:
             self._finished = True
         
         if (not self._finished and self._start_time != None):
-            self._finished = time.time - self._start_time >= self._time_to_wait
+            self._finished = time.time() - self._start_time >= self._time_to_wait
 
         if (self._start_time != None and self._finished):
             self._start_time = None

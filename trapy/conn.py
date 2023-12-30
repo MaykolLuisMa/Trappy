@@ -3,6 +3,7 @@ import os
 from chronometer import *
 from packet import *
 from typing import Tuple
+from random import randint
 
 class Conn:    
     def __init__(self, sock=None):
@@ -15,8 +16,8 @@ class Conn:
         self.dest_host = None
         self.dest_port = None
         self.isClosed = False
-        self.seq_num = None #Considerar Hacerlos Random
-        self.ack = None     #Considerar Hacerlos Random
+        self.seq_num = randint(1, 99)
+        self.ack = randint(1, 99)
 
         self.socket = sock
 
@@ -29,18 +30,21 @@ class Conn:
     
     def bind(self, host = None, port = None):
         if (host == None):
-            host = ''
-        self.host = host
+            host = '127.0.0.1'
+        self.source_host = host
         if (port == None):
-            port = 0 #Al hacer bind al puerto 0, el OS automaticamente nos encuentra un puerto libre
-        self.socket.bind(self.host, port)
-        self.port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
-    
+            port = get_free_port()
+        #self.socket.bind((self.source_host, port))
+        #print("---------------- " + str(port))
+        #print(self.socket.getsockname())
+        #self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
+        self.port = port
+
     def set_destination(self, host, port):
         self.dest_host = host
         self.dest_port = port
     #Devuelve una tupla con el paquete recibido, ya traducido y el address de donde vino
-    def recv(self, timeout=0.5) -> Tuple[Packet, Tuple[str, int]] | None:
+    def recv(self, timeout=0.5) -> Tuple[Packet | None, Tuple[str, int] | None]:
         self.socket.settimeout(timeout)
         timer = Chronometer()
         timer.start(timeout)
@@ -49,7 +53,7 @@ class Conn:
             try:
                 packet_raw, address = self.socket.recvfrom(self.bufsize)
             except socket.timeout:
-                return None
+                return (None, None)
             packet.get(packet_raw)
             if (packet.tcp_dest_port == self.source_port):
                 return (packet, address)
@@ -59,8 +63,20 @@ class Conn:
     def send(self, data) -> int:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
-        return self.socket.sendto(data, (self.dest_host, self.dest_port))
+        address = (self.dest_host, self.dest_port)
+        return self.socket.sendto(data, address)
 
 
 class ConnException(Exception):
     pass
+
+def get_free_port():
+   while True:
+       port = randint(1024, 65535)
+       with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+           try:
+               s.bind(("localhost", port))
+               s.close()
+               return port
+           except socket.error:
+               continue
