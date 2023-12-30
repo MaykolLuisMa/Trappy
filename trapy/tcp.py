@@ -29,8 +29,8 @@ def wait_packet_with_condition(conn : Conn, cond = always):
         packet = conn.recv()[0]
         if (packet is None) or not(cond(packet.flags)):
             continue
-        conn.ack = packet.tcp_seq
-        conn.seq_num = packet.tcp_ack_seq + 1
+        conn.ack = packet.tcp_seq_num
+        conn.seq_num = packet.tcp_ack_num + 1
         return packet
 
 def create_packet(conn : Conn):
@@ -40,6 +40,6 @@ def create_packet(conn : Conn):
         ip_source_host= conn.source_host,
         tcp_dest_port= conn.dest_port,
         tcp_source_port = conn.source_port,
-        tcp_seq= conn.seq_num,
-        tcp_ack_seq= conn.ack,
+        tcp_seq_num= conn.seq_num,
+        tcp_ack_num= conn.ack,
     )
