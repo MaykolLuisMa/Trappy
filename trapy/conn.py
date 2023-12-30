@@ -38,7 +38,7 @@ class Conn:
         #print("---------------- " + str(port))
         #print(self.socket.getsockname())
         #self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
-        self.port = port
+        self.source_port = port
 
     def set_destination(self, host, port):
         self.dest_host = host
