@@ -37,7 +37,8 @@ class Packet:
     
     def get(self, packet_from_raw):
         self.ip_header = unpack("!BBHHHBBH4s4s", packet_from_raw[0:20]) 
-           
+        
+        self._ip_check = self._ip_header[7]
         self.source_host = self.ip_header[8]
         self.dest_host = self.ip_header[9]
         
@@ -46,8 +47,9 @@ class Packet:
         self.data = packet_from_raw[40:]
     
     def _refresh(self):
-        self._ip_header[8] = socket.inet_aton(self.ip_source_host)
-        self._ip_header[9] = socket.inet_aton(self.ip_dest_host)
+        if (len(self._ip_header)==10):
+            self._ip_header[8] = socket.inet_aton(self.ip_source_host)
+            self._ip_header[9] = socket.inet_aton(self.ip_dest_host)
 
         # self._tcp_flags = (
         #     self.tcp_fin
@@ -84,8 +86,8 @@ class Packet:
             self._ip_header[5],
             self._ip_header[6],
             self._ip_check,
-            self.ip_source_host,
-            self.ip_dest_host,
+            self.ip_source_host.encode(),
+            self.ip_dest_host.encode(),
         )
         return ip_header
 
