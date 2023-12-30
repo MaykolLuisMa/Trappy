@@ -34,10 +34,11 @@ class Conn:
         self.source_host = host
         if (port == None):
             port = get_free_port()
-        self.socket.bind((self.source_host, port))
-        print("---------------- " + str(port))
-        print(self.socket.getsockname())
-        self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
+        #self.socket.bind((self.source_host, port))
+        #print("---------------- " + str(port))
+        #print(self.socket.getsockname())
+        #self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
+        self.port = port
 
     def set_destination(self, host, port):
         self.dest_host = host
