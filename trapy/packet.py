@@ -30,7 +30,7 @@ class Packet:
         self.ip_dest_host = None
         
         #el header checksum ni idea de como hacerlo
-        self._ip_header = [17664, 0, 40, 43981, 0, 16390, 0, None, None] 
+        self._ip_header = [60, 0, 40, 43981, 0, 64, 6, 0, None, None] 
         
         self.data = b'\x00\x00'
     
