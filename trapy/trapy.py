@@ -10,7 +10,7 @@ def listen(address: str) -> Conn:
 
 def accept(conn) -> Conn:
     syn_pack = receive_sync(conn)
-    finish_handshake(conn, syn_pack) #Y q si no funciona bien?, y si no llega nunca la confimation, debo considerar eso
+    finish_handshake(conn, syn_pack) 
     return conn
 
 def dial(address) -> Conn:
@@ -20,7 +20,7 @@ def dial(address) -> Conn:
     conn.set_destination(host, port)
     send_sync(conn)
     wait_sync_ack(conn)
-    send_confirmation(conn)#Lo mismo con si no funciona bien
+    send_confirmation(conn)
     return conn
 
 def send(conn: Conn, data: bytes) -> int:
