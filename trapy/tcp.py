@@ -8,13 +8,15 @@ def receive_sync(conn : Conn):
 def finish_handshake(conn: Conn):
     sync_ack_packet = create_packet(conn)
     sync_ack_packet.flags = 18 # ACK + SYNC
-    conn.send(sync_ack_packet.build())
+    for i in range(0, 20):
+        conn.send(sync_ack_packet.build())
     wait_packet_with_condition(conn, is_sync_ack)
 
 def send_sync(conn : Conn):
     sync_packet = create_packet(conn)
     sync_packet.flags = 2 #SYNC
-    conn.send(sync_packet.build())
+    for i in range(0, 20):
+        conn.send(sync_packet.build())
 
 def wait_sync_ack(conn : Conn):
     wait_packet_with_condition(conn, is_sync_ack)
@@ -22,12 +24,17 @@ def wait_sync_ack(conn : Conn):
 def send_confirmation(conn):
     conf_packet = create_packet(conn)
     conf_packet.flags = 18 #ACK + SYNC
-    conn.send(conf_packet.build())
+    for i in range(0, 20):
+        conn.send(conf_packet.build())
 
-def wait_packet_with_condition(conn : Conn, cond = always):
+def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5): #Q tiempo ponemos default el timeout?
+    timer = Chronometer()
+    timer.start()
     while True:
         packet = conn.recv()[0]
         if (packet is None) or not(cond(packet.flags)):
+            if timer.timeout():
+                raise ConnectionError("Connection TimeOut at HandShaking")
             continue
         conn.ack = packet.tcp_seq_num
         conn.seq_num = packet.tcp_ack_num + 1

@@ -20,7 +20,7 @@ def dial(address) -> Conn:
     conn.set_destination(host, port)
     send_sync(conn)
     wait_sync_ack(conn)
-    send_confirmation(conn)#Lo mismo con si no funciona bien
+    send_confirmation(conn)
     return conn
 
 def send(conn: Conn, data: bytes) -> int:
