@@ -19,14 +19,15 @@ class Packet:
         
         self.tcp_flags = 0
         
-        self.tcp_window = None
+        self.tcp_window = 4209
         self.tcp_check = None
-        self.tcp_urg_ptr = None
+        self.tcp_urg_ptr = 0
         
         self.ip_source_host = None
         self.ip_dest_host = None
         
-        self._ip_header = None
+        #el header checksum ni idea de como hacerlo
+        self._ip_header = [69, 0, 10240, 52651, 0, 1600, 0, None, None] 
         
         self.data = None
     
@@ -63,7 +64,7 @@ class Packet:
             self.tcp_offset_res,
             self.tcp_flags,
             self.tcp_window,
-            self.tcp_check,
+            0,
             self.tcp_urg_ptr,
         )
         return tcp_header
