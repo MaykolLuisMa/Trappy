@@ -22,3 +22,6 @@ def make_checksum(data):
 
 def corrupted(data, checksum):
     return checksum == make_checksum(data)
+
+def fragment_data(data, max_data_size):
+    pass
