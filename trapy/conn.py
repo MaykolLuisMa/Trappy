@@ -4,6 +4,7 @@ from chronometer import *
 from packet import *
 from typing import Tuple
 from random import randint
+from utils import get_free_port
 
 class Conn:    
     def __init__(self, sock=None):
@@ -69,14 +70,3 @@ class Conn:
 
 class ConnException(Exception):
     pass
-
-def get_free_port():
-   while True:
-       port = randint(1024, 65535)
-       with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-           try:
-               s.bind(("localhost", port))
-               s.close()
-               return port
-           except socket.error:
-               continue
