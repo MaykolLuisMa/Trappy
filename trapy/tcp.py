@@ -41,12 +41,12 @@ def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5): #Q tiem
     timer.start()
     while True:
         packet = conn.recv()[0]
-        if (packet is None) or not(cond(packet.flags)):
+        if (packet is None) or not(cond(packet)):
             if timer.timeout():
                 raise ConnectionError("Connection TimeOut at HandShaking")
             continue
-        conn.ack = packet.tcp_seq_num
-        conn.seq_num = packet.tcp_ack_num + 1
+        conn.ack = packet.tcp_seq_num + 1
+        conn.seq_num = packet.tcp_ack_num
         return packet
 
 def create_packet(conn : Conn):
