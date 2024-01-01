@@ -4,6 +4,37 @@ import utils
 
 class Packet:
     def __init__(self):
+        self.source_ip = '127.0.0.1'
+        self.dest_ip = '127.0.0.1'
+        
+        self.ip_version = 4
+        self.ip_ihl = 5
+        self.ip_tos = 0
+        self.ip_total_len = 40 # 20 bytes por la cabecera ip y 20 bytes por la cabezera tcp
+        self.ip_identification = 0 # Ni idea de como llenarlo
+        self.ip_flags = 0
+        self.ip_frg_off = 0
+        self.ip_ttl = 255
+        self.ip_protocol = 6
+        self.ip_checksum = 0
+        self.ip_source_host = socket.inet_aton(self.source_ip)
+        self.ip_dest_host = socket.inet_aton(self.dest_ip)
+        
+        self.ip_header = pack(
+            '!BBHHHBBH4s4s',
+            self.ip_version >> 4 + self.ip_ihl,
+            self.ip_tos,
+            self.ip_total_len,
+            self.ip_identification,
+            self.ip_flags >> 13 + self.ip_frg_off,
+            self.ip_ttl,
+            self.ip_protocol,
+            self.ip_checksum,
+            self.ip_source_host,
+            self.ip_dest_host
+        )
+        
+        
         self.tcp_source_port = None
         self.tcp_dest_port = None
         self.tcp_seq_num = None
