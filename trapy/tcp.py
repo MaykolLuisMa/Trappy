@@ -28,10 +28,18 @@ def send_confirmation(conn):
 
 
 #Transmission
-def send_chunk(conn : Conn, chunk):
+def send_chunk(conn : Conn, chunk, is_last_chunk):
     packet = create_packet(conn)
     packet.data = chunk
-    return send_till_its_received(conn, packet, is_ack, 2)
+    if is_last_chunk:
+        packet.tcp_flags = 1 #FIN
+    ack_packet = send_till_its_received(conn, packet, is_ack, 2)
+    return not(is_fin(ack_packet))
+
+def send_fin_conf(conn : Conn):
+    fin_conf_packet = create_packet(conn)
+    fin_conf_packet.flags = 17 #ACK + FIN
+    send_many_times(fin_conf_packet)
 
 
 #Global Utils
@@ -50,9 +58,9 @@ def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout 
         conn.send(data)
         ack_packet = wait_packet_with_condition(conn, cond)
         if ack_packet is not None:
-            return True
+            return ack_packet
     if ((timeout is not None) and (timer.timeout())):
-        return False
+        return None
     raise ConnException("Conexion's Lost")
 
 def send_many_times(conn : Conn, packet : Packet):

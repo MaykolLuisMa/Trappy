@@ -1,5 +1,4 @@
 from conn import Conn
-from state_of_send import State_of_Send
 from tcp import *
 from utils import *
 
@@ -26,15 +25,16 @@ def dial(address) -> Conn:
 def send(conn: Conn, data: bytes) -> int:
     chunks = fragment_data(data, conn.max_data_size)
     sent_data = 0
+    idx = 1
     for chunk in chunks:
-        if send_chunk(conn, chunk):
+        if send_chunk(conn, chunk, (idx == len(chunks))):
             sent_data = sent_data + len(chunk)
+            idx = idx + 1
         else:
-            #Se enviaron bytes hasta q el receptor desaparecio
+            #Se llega aqui si se recibio un fin, o si se desconecto el receptor
+            send_fin_conf(conn)
             return sent_data
-    return sent_data
-
-
+    #Realmente no hay manera d q se llegue aqui abajo
 
 def recv(conn: Conn, length: int) -> bytes:
     pass
