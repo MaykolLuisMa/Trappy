@@ -36,6 +36,14 @@ def send_chunk(conn : Conn, chunk, is_last_chunk):
     ack_packet = send_till_its_received(conn, packet, is_ack, 2)
     return not(is_fin(ack_packet))
 
+def next_data(conn : Conn, fin_was_received):
+    ack_packet = create_packet(conn)
+    if fin_was_received:
+        ack_packet.flags = 17 #ACK + FIN
+    else:
+        ack_packet = 16 #ACK
+    return send_till_its_received(conn, ack_packet, is_expected_data)
+
 def send_fin_conf(conn : Conn):
     fin_conf_packet = create_packet(conn)
     fin_conf_packet.flags = 17 #ACK + FIN

@@ -33,3 +33,6 @@ def corrupted(data, checksum):
 
 def fragment_data(data, max_data_size):
     pass
+
+def trim(buffer, length):
+    pass

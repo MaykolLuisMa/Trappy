@@ -8,5 +8,7 @@ def is_ack(conn : Conn, packet: Packet):
     return (((packet.tcp_flags & 16) > 0) and (conn.seq_num + 1 == packet.tcp_ack_num))
 def is_sync_ack(conn : Conn, packet: Packet):
     return (is_ack(conn, packet) and is_sync(packet))
-def is_fin(packet: Packet):
+def is_fin(conn : Conn, packet: Packet):
     return ((packet.tcp_flags & 1) > 0)
+def is_expected_data(conn : Conn, packet : Packet):
+    return (packet.tcp_seq_num == conn.ack_num)

@@ -37,8 +37,19 @@ def send(conn: Conn, data: bytes) -> int:
     #Realmente no hay manera d q se llegue aqui abajo
 
 def recv(conn: Conn, length: int) -> bytes:
-    pass
-
+    buffer = b''
+    packet = wait_packet_with_condition(conn, is_expected_data)
+    keep_going = True
+    while ((len(buffer) < length) and keep_going):
+        if is_fin(conn, packet):
+            keep_going = False
+        if packet is None:
+            raise ConnException("Se desconecto el emisor")
+        buffer = buffer + packet.data
+        packet = next_data(conn, not(keep_going)) #dentro de next data mandamos el ack
+    return trim(buffer, length) #Reducir lo leido al tamanho solicitado
+        
+        
 
 def close(conn: Conn):
     pass
