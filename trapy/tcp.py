@@ -92,8 +92,8 @@ def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5): #Q tiem
 def create_packet(conn : Conn):
     packet = Packet()
     packet.update(
-        ip_dest_host= conn.dest_host,
-        ip_source_host= conn.source_host,
+        dest_ip= conn.dest_host,
+        source_ip= conn.source_host,
         tcp_dest_port= conn.dest_port,
         tcp_source_port = conn.source_port,
         tcp_seq_num= conn.seq_num,

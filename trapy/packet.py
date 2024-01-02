@@ -119,10 +119,10 @@ class Packet:
         self.update(tcp_check=checksum)
         self.tcp_header = self.build_tcp_header()
         
-        self.update(_ip_check=0)
+        self.update(ip_checksum=0)
         ip_header = self.build_ip_header()
         checksum = utils.make_checksum(ip_header)
-        self.update(_ip_check=checksum)
+        self.update(ip_checksum=checksum)
         self.ip_header = self.build_ip_header()
         
         return ip_header + tcp_header + self.data
