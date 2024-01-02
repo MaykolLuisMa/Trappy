@@ -4,9 +4,11 @@ from aux_flags_functions import *
 #Handshaking
 def receive_sync(conn : Conn):
     print("WAITING SYNC")
-    sync_packet = wait_packet_with_condition(conn, is_sync)
+    sync_packet = wait_packet_with_condition(conn, is_sync, 30)#espero medio minuto
+    if sync_packet is None:
+        raise ConnException("Nunca llego el SYNC")
     conn.seq_num = randint(1, 1000)
-    conn.set_destination(sync_packet.ip_source_host, sync_packet.tcp_source_port)
+    conn.set_destination(sync_packet.source_ip, sync_packet.tcp_source_port)
     print("RECEIVED SYNC")
     return sync_packet
 
@@ -19,7 +21,9 @@ def send_sync(conn : Conn):
     conn.seq_num = randint(1, 1000)
     sync_packet = create_packet(conn)
     sync_packet.flags = 2 #SYNC
-    send_till_its_received(conn, sync_packet, is_sync_ack)
+    ack_packet = send_till_its_received(conn, sync_packet, is_sync_ack, 30)#Espero medio minuto
+    if ack_packet is None:    
+        raise ConnException("Nunca llego el SYNC_ACK")
 
 def send_confirmation(conn):
     conf_packet = create_packet(conn)
@@ -78,7 +82,7 @@ def send_many_times(conn : Conn, packet : Packet):
 
 def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5): #Q tiempo ponemos default el timeout?
     timer = Chronometer()
-    timer.start()
+    timer.start(timeout)
     while True:
         packet = conn.recv()[0]
         if (packet is None) or not(cond(conn, packet)):
