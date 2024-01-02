@@ -64,7 +64,7 @@ class Conn:
     def send(self, data) -> int:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
-        address = ('localhost', self.dest_port)
+        address = (self.dest_host, self.dest_port)
         return self.socket.sendto(data, address)
 
 
