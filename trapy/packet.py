@@ -26,7 +26,7 @@ class Packet:
         
         self.tcp_source_port = 0
         self.tcp_dest_port = 0
-        self.tcp_seq_num = random.randint(2**32)
+        self.tcp_seq_num = 0
         self.tcp_ack_num = 0        
         self.tcp_offset_res = 5
         # self.tcp_flag_syn = 0
