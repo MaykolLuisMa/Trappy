@@ -26,7 +26,7 @@ class Packet:
         
         self.tcp_source_port = 0
         self.tcp_dest_port = 0
-        self.tcp_seq_num = random.randint(2**32)
+        self.tcp_seq_num = 0
         self.tcp_ack_num = 0        
         self.tcp_offset_res = 5
         # self.tcp_flag_syn = 0
@@ -35,8 +35,8 @@ class Packet:
         # self.tcp_flag_psh = 0
         # self.tcp_flag_urg = 0
         # self.tcp_flag_fin = 0        
-        self.tcp_flags = 2        
-        self.tcp_window = 2**16
+        self.tcp_flags = 0        
+        self.tcp_window = 0
         self.tcp_checksum = 0
         self.tcp_urg_ptr = 0
         
@@ -90,7 +90,7 @@ class Packet:
             self.tcp_offset_res,
             self.tcp_flags,
             self.tcp_window,
-            self.tcp_check,
+            self.tcp_checksum,
             self.tcp_urg_ptr,
         )
         return tcp_header
@@ -119,10 +119,10 @@ class Packet:
         self.update(tcp_check=checksum)
         self.tcp_header = self.build_tcp_header()
         
-        self.update(_ip_check=0)
+        self.update(ip_checksum=0)
         ip_header = self.build_ip_header()
         checksum = utils.make_checksum(ip_header)
-        self.update(_ip_check=checksum)
+        self.update(ip_checksum=checksum)
         self.ip_header = self.build_ip_header()
         
         return ip_header + tcp_header + self.data

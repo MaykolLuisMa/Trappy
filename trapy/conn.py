@@ -17,8 +17,8 @@ class Conn:
         self.dest_host = None
         self.dest_port = None
         self.isClosed = False
-        self.seq_num = randint(1, 99)
-        self.ack = randint(1, 99)
+        self.seq_num = 0 #Los inicializare durante el handshake
+        self.ack_num = 0 #Los inicializare durante el handshake
 
         self.socket = sock
 

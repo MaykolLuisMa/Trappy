@@ -23,3 +23,12 @@ def get_free_port() -> int:
     port = sock.getsockname()[1]
     sock.close()
     return port
+
+def corrupted(data, checksum):
+    return checksum == make_checksum(data)
+
+def fragment_data(data, max_data_size):
+    pass
+
+def trim(buffer, length):
+    pass
