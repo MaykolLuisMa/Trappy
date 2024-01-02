@@ -58,13 +58,13 @@ class Conn:
             packet.get(packet_raw)
             if (packet.tcp_dest_port == self.source_port):
                 return (packet, address)
-            self.socket.settimeout(timer.time_left)
+            self.socket.settimeout(timer.time_left())
 
     #Envia un paquete ya listo para enviar. Devuelve la cantidad de bits enviados
     def send(self, data) -> int:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
-        address = (self.dest_host, self.dest_port)
+        address = ('localhost', self.dest_port)
         return self.socket.sendto(data, address)
 
 

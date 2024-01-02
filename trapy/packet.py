@@ -127,7 +127,7 @@ class Packet:
         self.update(ip_checksum=checksum)
         self.ip_header = self.build_ip_header()
         
-        return self.tcp_header + self.ip_header + self.data
+        return self.ip_header + self.tcp_header + self.data
 
     def update(self, 
         tcp_source_port = None,
