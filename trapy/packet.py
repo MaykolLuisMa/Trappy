@@ -90,7 +90,7 @@ class Packet:
             self.tcp_offset_res,
             self.tcp_flags,
             self.tcp_window,
-            self.tcp_check,
+            self.tcp_checksum,
             self.tcp_urg_ptr,
         )
         return tcp_header
