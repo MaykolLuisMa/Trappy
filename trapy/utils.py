@@ -27,8 +27,14 @@ def get_free_port() -> int:
 def corrupted(data, checksum):
     return checksum == make_checksum(data)
 
-def fragment_data(data, max_data_size):
-    pass
+def fragment_data(data: bytes, max_data_size: int):
+    fragmented_data = []
+    fd_size = 0
+    while fd_size < len(data):
+        next_position = min(fd_size + max_data_size, len(data))
+        fragmented_data.append(data[fd_size:next_position])
+        fd_size = next_position
+    return fragmented_data
 
 def trim(buffer, length):
-    pass
+    return fragment_data(buffer,length)[0] 
