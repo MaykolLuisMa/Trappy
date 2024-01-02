@@ -84,7 +84,7 @@ def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5, unknwn_s
     timer = Chronometer()
     timer.start(timeout)
     while True:
-        packet = conn.recv(emisor_desconocido= unknwn_source)[0]
+        packet = conn.recv(unknwn_source= unknwn_source)[0]
         if (packet is None) or not(cond(conn, packet)):
             if timer.timeout():
                 return None
