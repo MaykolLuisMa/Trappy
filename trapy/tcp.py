@@ -15,7 +15,8 @@ def receive_sync(conn : Conn):
 def finish_handshake(conn: Conn):
     sync_ack_packet = create_packet(conn)
     sync_ack_packet.tcp_flags = 18 # ACK + SYNC
-    send_till_its_received(conn, sync_ack_packet, is_sync_ack)
+    send_till_its_received(conn, sync_ack_packet, is_ack)
+    print("FINISHED HANDSHAKE")
 
 def send_sync(conn : Conn):
     conn.seq_num = randint(1, 1000)
@@ -28,8 +29,9 @@ def send_sync(conn : Conn):
 def send_confirmation(conn):
     print("SYNC ACK Received")
     conf_packet = create_packet(conn)
-    conf_packet.flags = 16 #ACK
-    send_many_times(conf_packet)
+    conf_packet.tcp_flags = 16 #ACK
+    send_many_times(conn, conf_packet)
+    print("FINISHED HANDSHAKE")
 
 
 #Transmission
@@ -44,15 +46,15 @@ def send_chunk(conn : Conn, chunk, is_last_chunk):
 def next_data(conn : Conn, fin_was_received):
     ack_packet = create_packet(conn)
     if fin_was_received:
-        ack_packet.flags = 17 #ACK + FIN
+        ack_packet.tcp_flags = 17 #ACK + FIN
     else:
         ack_packet = 16 #ACK
     return send_till_its_received(conn, ack_packet, is_expected_data)
 
 def send_fin_conf(conn : Conn):
     fin_conf_packet = create_packet(conn)
-    fin_conf_packet.flags = 17 #ACK + FIN
-    send_many_times(fin_conf_packet)
+    fin_conf_packet.tcp_flags = 17 #ACK + FIN
+    send_many_times(conn, fin_conf_packet)
 
 
 #Global Utils
