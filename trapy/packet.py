@@ -35,8 +35,8 @@ class Packet:
         # self.tcp_flag_psh = 0
         # self.tcp_flag_urg = 0
         # self.tcp_flag_fin = 0        
-        self.tcp_flags = 2        
-        self.tcp_window = 2**16
+        self.tcp_flags = 0        
+        self.tcp_window = 0
         self.tcp_checksum = 0
         self.tcp_urg_ptr = 0
         
