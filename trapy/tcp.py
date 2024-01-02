@@ -14,7 +14,7 @@ def receive_sync(conn : Conn):
 
 def finish_handshake(conn: Conn):
     sync_ack_packet = create_packet(conn)
-    sync_ack_packet.flags = 18 # ACK + SYNC
+    sync_ack_packet.tcp_flags = 18 # ACK + SYNC
     send_till_its_received(conn, sync_ack_packet, is_sync_ack)
 
 def send_sync(conn : Conn):
@@ -22,10 +22,11 @@ def send_sync(conn : Conn):
     sync_packet = create_packet(conn)
     sync_packet.tcp_flags = 2 #SYNC
     ack_packet = send_till_its_received(conn, sync_packet, is_sync_ack, 30)#Espero medio minuto
-    if ack_packet is None:    
+    if ack_packet is None:
         raise ConnException("Nunca llego el SYNC_ACK")
 
 def send_confirmation(conn):
+    print("SYNC ACK Received")
     conf_packet = create_packet(conn)
     conf_packet.flags = 16 #ACK
     send_many_times(conf_packet)

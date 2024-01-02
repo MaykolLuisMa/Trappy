@@ -10,7 +10,7 @@ def listen(address: str) -> Conn:
 
 def accept(conn) -> Conn:
     syn_pack = receive_sync(conn)
-    finish_handshake(conn, syn_pack)
+    finish_handshake(conn)
     return conn
 
 def dial(address) -> Conn:

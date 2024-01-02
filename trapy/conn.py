@@ -57,7 +57,7 @@ class Conn:
             except socket.timeout:
                 return (None, None)
             packet.get(packet_raw)
-            print("Llego un paquete de " + packet.source_ip +" : " + str(packet.tcp_source_port))
+            #print("Llego un paquete de " + packet.source_ip +" : " + str(packet.tcp_source_port))
             #print("El paquete venia destinado a " + packet.dest_ip + " " + str(packet.tcp_dest_port))
             if ((packet.tcp_dest_port == self.source_port) or unknwn_source):
                 return (packet, address)
@@ -68,8 +68,8 @@ class Conn:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
         address = (self.dest_host, self.dest_port)
-        print("Enviado un paquete a " + address[0] + ":" + str(address[1]))
-        print("Yo soy " + self.source_host + " " + str(self.source_port))
+        #print("Enviado un paquete a " + address[0] + ":" + str(address[1]))
+        #print("Yo soy " + self.source_host + " " + str(self.source_port))
         return self.socket.sendto(data, address)
 
 
