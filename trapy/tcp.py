@@ -4,7 +4,7 @@ from aux_flags_functions import *
 #Handshaking
 def receive_sync(conn : Conn):
     print("WAITING SYNC")
-    sync_packet = wait_packet_with_condition(conn, is_sync, 30)#espero medio minuto
+    sync_packet = wait_packet_with_condition(conn, is_sync, 30, unknwn_source = True)#espero medio minuto
     if sync_packet is None:
         raise ConnException("Nunca llego el SYNC")
     conn.seq_num = randint(1, 1000)
@@ -80,11 +80,11 @@ def send_many_times(conn : Conn, packet : Packet):
     for i in range(0, 20):
         conn.send(data)
 
-def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5): #Q tiempo ponemos default el timeout?
+def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5, unknwn_source = False): #Q tiempo ponemos default el timeout?
     timer = Chronometer()
     timer.start(timeout)
     while True:
-        packet = conn.recv()[0]
+        packet = conn.recv(emisor_desconocido= unknwn_source)[0]
         if (packet is None) or not(cond(conn, packet)):
             if timer.timeout():
                 return None

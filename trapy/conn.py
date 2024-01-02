@@ -45,7 +45,7 @@ class Conn:
         self.dest_host = host
         self.dest_port = port
     #Devuelve una tupla con el paquete recibido, ya traducido y el address de donde vino
-    def recv(self, timeout=0.5) -> Tuple[Packet | None, Tuple[str, int] | None]:
+    def recv(self, timeout=0.5, unknwn_source=False) -> Tuple[Packet | None, Tuple[str, int] | None]:
         self.socket.settimeout(timeout)
         timer = Chronometer()
         timer.start(timeout)
@@ -56,7 +56,8 @@ class Conn:
             except socket.timeout:
                 return (None, None)
             packet.get(packet_raw)
-            if (packet.tcp_dest_port == self.source_port):
+            print("Llego un paquete de " + packet.source_ip +" : " + str(packet.tcp_source_port))
+            if ((packet.tcp_dest_port == self.source_port) or unknwn_source):
                 return (packet, address)
             self.socket.settimeout(timer.time_left())
 
@@ -65,6 +66,8 @@ class Conn:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
         address = (self.dest_host, self.dest_port)
+        print("Enviado un paquete a " + address[0] + ":" + str(address[1]))
+        print("Yo soy " + self.source_host + " " + str(self.source_port))
         return self.socket.sendto(data, address)
 
 
