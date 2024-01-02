@@ -10,6 +10,7 @@ class Conn:
     def __init__(self, sock=None):
         if sock is None:
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
+            sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
         self.max_data_size = 512
         self.bufsize = 20 + 20 + self.max_data_size
         self.source_host = None
@@ -35,7 +36,7 @@ class Conn:
         self.source_host = host
         if (port == None):
             port = get_free_port()
-        #self.socket.bind((self.source_host, port))
+        self.socket.bind((self.source_host, port))
         #print("---------------- " + str(port))
         #print(self.socket.getsockname())
         #self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
@@ -57,6 +58,7 @@ class Conn:
                 return (None, None)
             packet.get(packet_raw)
             print("Llego un paquete de " + packet.source_ip +" : " + str(packet.tcp_source_port))
+            #print("El paquete venia destinado a " + packet.dest_ip + " " + str(packet.tcp_dest_port))
             if ((packet.tcp_dest_port == self.source_port) or unknwn_source):
                 return (packet, address)
             self.socket.settimeout(timer.time_left())

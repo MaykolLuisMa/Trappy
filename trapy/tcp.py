@@ -20,7 +20,7 @@ def finish_handshake(conn: Conn):
 def send_sync(conn : Conn):
     conn.seq_num = randint(1, 1000)
     sync_packet = create_packet(conn)
-    sync_packet.flags = 2 #SYNC
+    sync_packet.tcp_flags = 2 #SYNC
     ack_packet = send_till_its_received(conn, sync_packet, is_sync_ack, 30)#Espero medio minuto
     if ack_packet is None:    
         raise ConnException("Nunca llego el SYNC_ACK")
