@@ -47,19 +47,21 @@ class Packet:
     def get_ip_header(self, ip_header_packet):
         self.ip_header = ip_header_packet
         (
-            self.ip_version, 
-            self.ip_ihl, 
+            self.ip_version,             
             self.ip_tos,
             self.ip_total_len,
             self.ip_identification,
             self.ip_flags,
-            self.ip_frg_off,
             self.ip_ttl,
             self.ip_protocol,
             self.ip_checksum,
             self.ip_source_host,
             self.ip_dest_host
         ) = unpack('!BBHHHBBH4s4s', self.ip_header)
+        self.ip_ihl = self.ip_version - ((self.ip_version >> 4) << 4)
+        self.ip_version = (self.ip_version >> 4)
+        self.ip_frg_off = self.ip_flags - ((self.ip_flags >> 13) << 13)
+        self.ip_flags = self.ip_flags >> 13
         
     def get_tcp_header(self, tcp_header_packet):
         self.tcp_header = tcp_header_packet
@@ -98,11 +100,11 @@ class Packet:
     def build_ip_header(self):
         ip_header = pack(
             '!BBHHHBBH4s4s',
-            self.ip_version >> 4 + self.ip_ihl,
+            (self.ip_version << 4) + self.ip_ihl,
             self.ip_tos,
             self.ip_total_len,
             self.ip_identification,
-            self.ip_flags >> 13 + self.ip_frg_off,
+            (self.ip_flags << 13) + self.ip_frg_off,
             self.ip_ttl,
             self.ip_protocol,
             self.ip_checksum,
@@ -125,7 +127,7 @@ class Packet:
         self.update(ip_checksum=checksum)
         self.ip_header = self.build_ip_header()
         
-        return ip_header + tcp_header + self.data
+        return self.tcp_header + self.ip_header + self.data
 
     def update(self, 
         tcp_source_port = None,
