@@ -38,6 +38,8 @@ def send(conn: Conn, data: bytes) -> int:
 
 def recv(conn: Conn, length: int) -> bytes:
     buffer = b''
+    print("buffer len")
+    print(len(buffer))
     packet = wait_packet_with_condition(conn, is_expected_data, 2)
     if packet is None:
         raise ConnException("Nunca llego el primer paquete")
@@ -47,7 +49,10 @@ def recv(conn: Conn, length: int) -> bytes:
             keep_going = False
         if packet is None:
             raise ConnException("Se desconecto el emisor")
-        buffer = buffer + packet.data
+        if(not is_empty(conn,packet)):
+            buffer = buffer + packet.data
+        print("sequence number")
+        print(packet.tcp_seq_num)
         packet = next_data(conn, not(keep_going)) #dentro de next data mandamos el ack
     return trim(buffer, length) #Reducir lo leido al tamanho solicitado
         

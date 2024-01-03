@@ -34,4 +34,7 @@ def fragment_data(data: bytes, max_data_size: int):
     return fragmented_data
 
 def trim(buffer, length):
-    return fragment_data(buffer,length)[0] 
+    fragmented_data = fragment_data(buffer,length)
+    if len(fragmented_data) == 0:
+        return b''
+    return fragmented_data[0]

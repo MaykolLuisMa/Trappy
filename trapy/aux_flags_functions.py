@@ -1,5 +1,7 @@
 from conn import Conn
 from packet import Packet
+def is_empty(conn: Conn, packet: Packet):
+    return packet.data == b'\x00\x00'
 def always(conn: Conn, packet: Packet):
     return True
 def is_sync(conn : Conn, packet: Packet):
