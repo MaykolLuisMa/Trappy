@@ -38,7 +38,9 @@ def send(conn: Conn, data: bytes) -> int:
 
 def recv(conn: Conn, length: int) -> bytes:
     buffer = b''
-    packet = wait_packet_with_condition(conn, is_expected_data)
+    packet = wait_packet_with_condition(conn, is_expected_data, 2)
+    if packet is None:
+        raise ConnException("Nunca llego el primer paquete")
     keep_going = True
     while ((len(buffer) < length) and keep_going):
         if is_fin(conn, packet):
