@@ -75,7 +75,7 @@ def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout 
         ack_packet = wait_packet_with_condition(conn, cond)
         if ack_packet is not None:
             return ack_packet
-    raise ConnException("Nunca se acepto un paquete")
+    #raise ConnException("Nunca se acepto un paquete")
 
 def send_many_times(conn : Conn, packet : Packet):
     data = packet.build()

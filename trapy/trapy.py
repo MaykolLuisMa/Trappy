@@ -38,8 +38,6 @@ def send(conn: Conn, data: bytes) -> int:
 
 def recv(conn: Conn, length: int) -> bytes:
     buffer = b''
-    print("buffer len")
-    print(len(buffer))
     packet = wait_packet_with_condition(conn, is_expected_data, 2)
     if packet is None:
         raise ConnException("Nunca llego el primer paquete")
@@ -59,4 +57,10 @@ def recv(conn: Conn, length: int) -> bytes:
         
 
 def close(conn: Conn):
-    pass
+    send_packet = create_packet(conn)
+    send_packet.flags = 1 #FIN
+    recv_packet = send_till_its_received(conn,send_packet,is_fin,30)
+    if recv_packet is not None:
+        conn.close()
+    else:
+        close(conn)

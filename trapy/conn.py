@@ -69,7 +69,11 @@ class Conn:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
         address = (self.dest_host, self.dest_port)
         #print("Enviado un paquete a " + address[0] + ":" + str(address[1]))
-        #print("Yo soy " + self.source_host + " " + str(self.source_port))
+        #print("Yo soy " + self.source_host + " " + str(self.source_port)
+        # )
+        #print("data-----")
+        #print(data)
+        #print("-----data")
         return self.socket.sendto(data, address)
 
 

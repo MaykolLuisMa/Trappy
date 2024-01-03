@@ -81,6 +81,7 @@ class Packet:
         self.get_ip_header(packet_from_raw[:20])
         self.get_tcp_header(packet_from_raw[20:40])
         self.data = packet_from_raw[40:]
+        
     
     def build_tcp_header(self):
         tcp_header = pack(
