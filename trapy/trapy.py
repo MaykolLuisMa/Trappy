@@ -38,7 +38,6 @@ def send(conn: Conn, data: bytes) -> int:
 
 #Merece quedar mas lindo
 def recv(conn: Conn, length: int) -> bytes:
-    first_package = True
     buffer = b''
     packet = wait_packet_with_condition(conn, is_expected_data, 2)
     if packet is None:
@@ -50,12 +49,6 @@ def recv(conn: Conn, length: int) -> bytes:
         if packet is None:
             raise ConnException("Se desconecto el emisor")
         buffer = buffer + packet.data
-        if first_package:
-            if keep_going:
-                first_package = False
-            else:
-                #En el caso en q todo el mensaje consistia en un solo paquete, ya el ACK fue enviado cuando se leyo
-                break
         packet = next_data(conn, not(keep_going)) #dentro de next data mandamos el ack
     return trim(buffer, length) #Reducir lo leido al tamanho solicitado
         
