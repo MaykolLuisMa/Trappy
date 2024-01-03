@@ -41,7 +41,7 @@ def send_chunk(conn : Conn, chunk, is_last_chunk):
     if is_last_chunk:
         packet.tcp_flags = 1 #FIN
     ack_packet = send_till_its_received(conn, packet, is_ack, 2)
-    return not(is_fin(ack_packet))
+    return not(is_fin(conn, ack_packet))
 
 def next_data(conn : Conn, fin_was_received):
     ack_packet = create_packet(conn)
