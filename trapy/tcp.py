@@ -49,7 +49,7 @@ def next_data(conn : Conn, fin_was_received):
     if fin_was_received:
         ack_packet.tcp_flags = 17 #ACK + FIN
     else:
-        ack_packet = 16 #ACK
+        ack_packet.tcp_flags = 16 #ACK
     return send_till_its_received(conn, ack_packet, is_expected_data)
 
 def send_fin_conf(conn : Conn):
