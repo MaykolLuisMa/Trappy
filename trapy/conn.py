@@ -37,9 +37,6 @@ class Conn:
         if (port == None):
             port = get_free_port()
         self.socket.bind((self.source_host, port))
-        #print("---------------- " + str(port))
-        #print(self.socket.getsockname())
-        #self.source_port = self.socket.getsockname()[1] #Averiguando que puerto fue asignado
         self.source_port = port
 
     def set_destination(self, host, port):
@@ -68,8 +65,6 @@ class Conn:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
         address = (self.dest_host, self.dest_port)
-        #print("Enviado un paquete a " + address[0] + ":" + str(address[1]))
-        #print("Yo soy " + self.source_host + " " + str(self.source_port))
         return self.socket.sendto(data, address)
 
 

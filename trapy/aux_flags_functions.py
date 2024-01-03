@@ -11,4 +11,4 @@ def is_sync_ack(conn : Conn, packet: Packet):
 def is_fin(conn : Conn, packet: Packet):
     return ((packet.tcp_flags & 1) > 0)
 def is_expected_data(conn : Conn, packet : Packet):
-    return (packet.tcp_seq_num == conn.ack_num - 1) #El +1 se debe a que el valor de ack de conn ya fue incrementado
+    return packet.tcp_seq_num == conn.ack_num

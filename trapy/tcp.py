@@ -26,12 +26,14 @@ def send_sync(conn : Conn):
     if ack_packet is None:
         raise ConnException("Nunca llego el SYNC_ACK")
 
-def send_confirmation(conn):
-    print("SYNC ACK Received")
+def send_confirmation(conn : Conn):
+    print("TERMINATION ACK Received")
     conf_packet = create_packet(conn)
     conf_packet.tcp_flags = 16 #ACK
     send_many_times(conn, conf_packet)
-    print("FINISHED HANDSHAKE")
+    print("FINISHED")
+    conn.seq_num = conn.seq_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
+    conn.ack_num = conn.ack_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
 
 
 #Transmission
@@ -42,7 +44,7 @@ def send_chunk(conn : Conn, chunk, is_last_chunk):
     if is_last_chunk:
         packet.tcp_flags = 17 #ACK + FIN
     ack_packet = send_till_its_received(conn, packet, is_ack, 2)
-    return not(is_fin(conn, ack_packet))
+    return (not(is_fin(conn, ack_packet)) and not(is_last_chunk))
 
 def next_data(conn : Conn, fin_was_received):
     ack_packet = create_packet(conn)
@@ -51,12 +53,6 @@ def next_data(conn : Conn, fin_was_received):
     else:
         ack_packet.tcp_flags = 16 #ACK
     return send_till_its_received(conn, ack_packet, is_expected_data)
-
-def send_fin_conf(conn : Conn):
-    fin_conf_packet = create_packet(conn)
-    fin_conf_packet.tcp_flags = 17 #ACK + FIN
-    send_many_times(conn, fin_conf_packet)
-
 
 #Global Utils
 def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout = None):
@@ -79,8 +75,12 @@ def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout 
 
 def send_many_times(conn : Conn, packet : Packet):
     data = packet.build()
+#    timer = Chronometer()
     for i in range(0, 20):
         conn.send(data)
+#        timer.start(0.1)
+#        while not(timer.timeout()):
+#            pass
 
 def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5, unknwn_source = False): #Q tiempo ponemos default el timeout?
     timer = Chronometer()
