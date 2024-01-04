@@ -38,5 +38,3 @@ def test_queue():
         print("error")
         return
     print("accepted")
-
-test_queue()
