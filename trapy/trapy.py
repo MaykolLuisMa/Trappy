@@ -46,7 +46,6 @@ def recv(conn: Conn, length: int) -> bytes:
     #si el primer paquete es mas grande que lo q esperamos recibir
     if (len(packet.data) > length):
         next_data(conn, True)
-        keep_going = False
     while ((len(buffer) < length) and keep_going):
         if is_fin(conn, packet):
             keep_going = False
