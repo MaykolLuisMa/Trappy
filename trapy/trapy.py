@@ -41,8 +41,12 @@ def recv(conn: Conn, length: int) -> bytes:
     buffer = b''
     packet = wait_packet_with_condition(conn, is_expected_data, 2)
     if packet is None:
-        raise ConnException("Nunca llego el primer paquete")
+        raise ConnException("receiver quedo colgado  esperando")
     keep_going = True
+    #si el primer paquete es mas grande que lo q esperamos recibir
+    if (len(packet.data) > length):
+        next_data(conn, True)
+        keep_going = False
     while ((len(buffer) < length) and keep_going):
         if is_fin(conn, packet):
             keep_going = False
