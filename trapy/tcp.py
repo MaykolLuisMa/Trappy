@@ -1,6 +1,10 @@
 from conn import *
 from aux_flags_functions import *
 
+#Parametros
+N_CHUNKS_PER_ACK = 2
+MAXIMUM_WAIT_BEFORE_ACK = 1
+
 #Handshaking
 def receive_sync(conn : Conn):
     print("WAITING SYNC")
