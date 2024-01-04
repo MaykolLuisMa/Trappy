@@ -18,23 +18,6 @@ class queue:
         if (len(self.elements) == 0):
             self.first = element
         self.elements.append(element)
-        
-def test_queue():
-    q = queue()
-    if (q.first != None):
-        print("error")
-        return
-    for i in range(7):
-        q.push(i)
-    for i in range(7):
-        if q.peek() != i: 
-            print("error")
-            return
-        q.pop()
-    if (q.first != None):
-        print("error")
-        return
-    if (q.pop() != None):
-        print("error")
-        return
-    print("accepted")
+
+    def isEmpty(self):
+        return (self.peek() == None)
