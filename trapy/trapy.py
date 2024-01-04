@@ -47,6 +47,7 @@ def recv(conn: Conn, length: int) -> bytes:
     if (len(packet.data) > length):
         next_data(conn, True)
         keep_going = False
+        buffer = buffer + packet.data
     while ((len(buffer) < length) and keep_going):
         if is_fin(conn, packet):
             keep_going = False
