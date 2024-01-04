@@ -43,17 +43,12 @@ def recv(conn: Conn, length: int) -> bytes:
     if packet is None:
         raise ConnException("receiver quedo colgado  esperando")
     keep_going = True
-    #si el primer paquete es mas grande que lo q esperamos recibir
-    if (len(packet.data) > length):
-        next_data(conn, True)
-        keep_going = False
-        buffer = buffer + packet.data
     while ((len(buffer) < length) and keep_going):
-        if is_fin(conn, packet):
-            keep_going = False
         if packet is None:
             raise ConnException("Se desconecto el emisor")
         buffer = buffer + packet.data
+        if (is_fin(conn, packet) or (len(buffer) > length)):
+            keep_going = False
         packet = next_data(conn, not(keep_going)) #dentro de next data mandamos el ack
     return trim(buffer, length) #Reducir lo leido al tamanho solicitado
         
