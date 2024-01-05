@@ -26,8 +26,12 @@ class Conn:
     def close(self):
         #Aqui reiniciaremos todos los atributos
         self.socket.close()
-        self.host = None
-        self.port = None
+        self.source_host = None
+        self.source_port = None
+        self.dest_host = None
+        self.dest_port = None
+        self.seq_num = 0 
+        self.ack_num = 0 
         self.isClosed = True
     
     def bind(self, host = None, port = None):
@@ -63,7 +67,7 @@ class Conn:
     #Envia un paquete ya listo para enviar. Devuelve la cantidad de bits enviados
     def send(self, data) -> int:
         if self.dest_host == None:
-            raise ConnException("No destination set for the socket " + self.host + " : " + self.port)
+            raise ConnException("No destination set for the socket " + self.dest_host + " : " + self.dest_port)
         address = (self.dest_host, self.dest_port)
         return self.socket.sendto(data, address)
 
