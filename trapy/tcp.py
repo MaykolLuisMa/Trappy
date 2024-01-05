@@ -5,7 +5,9 @@ import our_queue
 
 #Parametros
 N_CHUNKS_PER_ACK = 2
+N_CHUNKS_PER_WINDOW = 4
 MAXIMUM_WAIT_BEFORE_ACK = 1
+MAXIMUM_WAIT_BEFORE_RESEND = 1
 
 #Handshaking
 def receive_sync(conn : Conn):
@@ -42,33 +44,34 @@ def send_confirmation(conn : Conn):
     conn.ack_num = conn.ack_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
 
 #Transmission
-def create_queue(data : bytes, max_data_size):
+def create_data_queue(data : bytes, max_data_size):
     chunks = fragment_data(data, max_data_size)
     cola = our_queue.queue()
     for chunk in chunks:
         cola.push(chunk)
     return cola
 
-def send_chunk(conn : Conn, data : bytes, final_package = False, wait_for_ack = False):
+def create_packet_for_send(conn : Conn, data : bytes, final_package = False):
     packet = create_packet(conn)
     packet.data = data
     if final_package:
         packet.tcp_flags = 17 # ACK + FIN
     else:
         packet.tcp_flags = 16 # ACK
-    conn.send(packet.build())
-    if wait_for_ack:
-        return wait_packet_with_condition(conn, has_ack_flag)
-    conn.seq_num = conn.seq_num + 1
+    return packet
 
-def send_n_chunks(conn : Conn, chunks : our_queue.queue):
-    for i in range(0, N_CHUNKS_PER_ACK - 1):
-        if(i + 1 == chunks.size()):
-            return send_chunk(conn, chunks.peek(i), final_package= True, wait_for_ack= True)
-        send_chunk(conn, chunks.peek(i))
-    if (N_CHUNKS_PER_ACK == chunks.size()):
-        return send_chunk(conn, chunks.peek(i), final_package= True, wait_for_ack= True)
-    return send_chunk(conn, chunks.peek(N_CHUNKS_PER_ACK - 1), wait_for_ack= True)
+def fill_window(conn : Conn, window : our_queue.queue, chunks : our_queue.queue):
+    if chunks.empty():
+        return
+    while (window.size() < N_CHUNKS_PER_WINDOW) and not(chunks.empty()):
+        packet = create_packet_for_send(conn, chunks.peek(), (chunks.size() == 1))
+        data = packet.build()
+        chunks.pop()
+        conn.send(data)
+        conn.seq_num = conn.seq_num + 1
+        timer = Chronometer()
+        timer.start(MAXIMUM_WAIT_BEFORE_RESEND)
+        window.push((data, timer))
 
 def next_data(conn : Conn, fin_was_received):
     ack_packet = create_packet(conn)
@@ -77,6 +80,14 @@ def next_data(conn : Conn, fin_was_received):
     else:
         ack_packet.tcp_flags = 16 #ACK
     return send_till_its_received(conn, ack_packet, is_expected_data)
+
+def resend_timeout_packages(conn : Conn, window : our_queue.queue):
+    for i in range(0, min(N_CHUNKS_PER_WINDOW, window.size())):
+        tuple = window.peek(i)
+        if tuple[1].timeout():
+            conn.send(tuple[0])
+            timer = Chronometer()
+            window.edit(i, (tuple[0], timer.start(MAXIMUM_WAIT_BEFORE_RESEND)))
 
 #Global Utils
 def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout = None):

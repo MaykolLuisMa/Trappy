@@ -12,6 +12,9 @@ class queue:
     def push(self, element):
         self.elements.append(element)
 
+    def edit(self, pos, new_element):
+        self.elements[pos] = new_element
+
     def empty(self):
         return (self.size() == 0)
     

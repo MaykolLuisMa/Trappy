@@ -22,18 +22,20 @@ def dial(address) -> Conn:
     send_confirmation(conn)
     return conn
 
-def send(conn: Conn, data: bytes) -> int:
-    chunks = create_queue(data, conn.max_data_size)
+def send(conn : Conn, data : bytes):
+    chunks = create_data_queue(data, conn.max_data_size)
+    window = our_queue.queue()
     sent_data = 0
-    keep_going = True
-    last_received = conn.seq_num
-    while (not(chunks.empty()) and keep_going):
-        ack_packet = send_n_chunks(conn, chunks)
+    last_received = conn.seq_num #last_received by the destination
+    while(not(chunks.empty()) or not(window.empty())):
+        fill_window(conn, window, chunks)
+        ack_packet = wait_packet_with_condition(conn, has_ack_flag, MAXIMUM_WAIT_BEFORE_RESEND)
         while (last_received < ack_packet.tcp_ack_num):
-            sent_data = sent_data + len(chunks.peek())
-            chunks.pop()
+            sent_data = sent_data + len(window.pop()[0])
             last_received = last_received + 1
-        keep_going = not(is_fin(conn, ack_packet))
+        if is_fin(conn, ack_packet):
+            break
+        resend_timeout_packages(conn, window)
     send_confirmation(conn)
     return sent_data
 
