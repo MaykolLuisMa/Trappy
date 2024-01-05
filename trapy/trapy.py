@@ -23,15 +23,12 @@ def dial(address) -> Conn:
     return conn
 
 def send(conn : Conn, data : bytes):
-    if conn.isClosed:
-        raise ConnException("La conexion esta cerrada")
     chunks = create_data_queue(data, conn.max_data_size)
     window = our_queue.queue()
 
 def send(conn: Conn, data: bytes) -> int:
-    if conn.isClosed:
-        raise ConnException("La conexion esta cerrada")
-    chunks = create_queue(data, conn.max_data_size)
+    chunks = create_data_queue(data, conn.max_data_size)
+    window = our_queue.queue()
     sent_data = 0
     last_received = conn.seq_num #last_received by the destination
     while(not(chunks.empty()) or not(window.empty())):
