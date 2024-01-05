@@ -21,27 +21,23 @@ def receive_sync(conn : Conn):
     return sync_packet
 
 def finish_handshake(conn: Conn):
-    sync_ack_packet = create_packet(conn)
-    sync_ack_packet.tcp_flags = 18 # ACK + SYNC
+    sync_ack_packet = create_packet_for_send(conn, sync= True, ack= True)
     send_till_its_received(conn, sync_ack_packet, is_ack)
     print("FINISHED HANDSHAKE")
 
 def send_sync(conn : Conn):
     conn.seq_num = randint(1, 1000)
-    sync_packet = create_packet(conn)
-    sync_packet.tcp_flags = 2 #SYNC
+    sync_packet = create_packet_for_send(conn, sync= True)
     ack_packet = send_till_its_received(conn, sync_packet, is_sync_ack, 30)#Espero medio minuto
     if ack_packet is None:
         raise ConnException("Nunca llego el SYNC_ACK")
 
 def send_confirmation(conn : Conn):
-    print("TERMINATION ACK Received")
-    conf_packet = create_packet(conn)
-    conf_packet.tcp_flags = 16 #ACK
+    conf_packet = create_packet_for_send(conn, ack= True)
     send_many_times(conn, conf_packet)
-    print("FINISHED")
     conn.seq_num = conn.seq_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
     conn.ack_num = conn.ack_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
+
 
 #Transmission
 def create_data_queue(data : bytes, max_data_size):
@@ -50,15 +46,6 @@ def create_data_queue(data : bytes, max_data_size):
     for chunk in chunks:
         cola.push(chunk)
     return cola
-
-def create_packet_for_send(conn : Conn, data : bytes, final_package = False):
-    packet = create_packet(conn)
-    packet.data = data
-    if final_package:
-        packet.tcp_flags = 17 # ACK + FIN
-    else:
-        packet.tcp_flags = 16 # ACK
-    return packet
 
 def fill_window(conn : Conn, window : our_queue.queue, chunks : our_queue.queue):
     if chunks.empty():
@@ -89,6 +76,7 @@ def resend_timeout_packages(conn : Conn, window : our_queue.queue):
             timer = Chronometer()
             window.edit(i, (tuple[0], timer.start(MAXIMUM_WAIT_BEFORE_RESEND)))
 
+
 #Global Utils
 def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout = None):
     data = packet.build()
@@ -106,7 +94,7 @@ def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout 
         ack_packet = wait_packet_with_condition(conn, cond)
         if ack_packet is not None:
             return ack_packet
-    raise ConnException("Nunca se acepto un paquete")
+    raise ConnException("Paquete nunca fue recibido")
 
 def send_many_times(conn : Conn, packet : Packet):
     data = packet.build()
@@ -125,6 +113,18 @@ def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5, unknwn_s
         conn.ack_num = packet.tcp_seq_num + 1 #Decidimos no sumar la longitud del paquete, sino siempre sumar 1
         conn.seq_num = packet.tcp_ack_num
         return packet
+
+def create_packet_for_send(conn : Conn, data = b'', fin = False, sync = False, ack = False):
+    packet = create_packet(conn)
+    packet.data = data
+    packet.tcp_flags = 0
+    if fin:
+        packet.tcp_flags = packet.tcp_flags + 1
+    if sync:
+        packet.tcp_flags = packet.tcp_flags + 2
+    if ack:
+        packet.tcp_flags = packet.tcp_flags + 16
+    return packet
 
 def create_packet(conn : Conn):
     packet = Packet()
