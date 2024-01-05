@@ -23,36 +23,40 @@ def dial(address) -> Conn:
     return conn
 
 def send(conn: Conn, data: bytes) -> int:
-    chunks = fragment_data(data, conn.max_data_size)
+    chunks = create_queue(data, conn.max_data_size)
     sent_data = 0
-    idx = 1
-    for chunk in chunks:
-        if send_chunk(conn, chunk, (idx == len(chunks))):
-            sent_data = sent_data + len(chunk)
-            idx = idx + 1
-        else:
-            #Se llega aqui si se recibio un fin, o si se desconecto el receptor
-            send_confirmation(conn)
-            return sent_data
-    #Realmente no hay manera d q se llegue aqui abajo
+    keep_going = True
+    last_received = conn.seq_num
+    while (not(chunks.empty()) and keep_going):
+        ack_packet = send_n_chunks(conn, chunks)
+        while (last_received < ack_packet.tcp_ack_num):
+            sent_data = sent_data + len(chunks.peek())
+            chunks.pop()
+            last_received = last_received + 1
+        keep_going = not(is_fin(conn, ack_packet))
+    send_confirmation(conn)
+    return sent_data
 
-#Merece quedar mas lindo
+#Si uso trim, debo dejar claro que hubo un paquete que recibi bien pero no trabaje completo y por tanto perdi parte
+#Notemos que si deja de recibir un paquete, ahi mismo no procesa los siguientes, para preservar el orden
 def recv(conn: Conn, length: int) -> bytes:
     buffer = b''
-    packet = wait_packet_with_condition(conn, is_expected_data, 2)
-    if packet is None:
-        raise ConnException("receiver quedo colgado  esperando")
+    timer = Chronometer()
     keep_going = True
-    while ((len(buffer) < length) and keep_going):
-        if packet is None:
-            raise ConnException("Se desconecto el emisor")
-        buffer = buffer + packet.data
-        if (is_fin(conn, packet) or (len(buffer) > length)):
-            keep_going = False
-        packet = next_data(conn, not(keep_going)) #dentro de next data mandamos el ack
-    return trim(buffer, length) #Reducir lo leido al tamanho solicitado
-        
-        
+    packet = None
+    while keep_going:
+        timer.start(MAXIMUM_WAIT_BEFORE_ACK)
+        for i in range(0, N_CHUNKS_PER_ACK):
+            if ((i > 0) or (packet == None)):
+                packet = wait_packet_with_condition(conn, is_expected_data, timer.time_left())
+            if packet is not None:
+                buffer = buffer + packet.data
+                if (is_fin(conn, packet) or (len(buffer) > length)):
+                    keep_going = False
+                    break
+            break #Caso en el q se agoto el timer
+        packet = next_data(conn, not(keep_going))
+    return trim(buffer, length)
 
 def close(conn: Conn):
     pass

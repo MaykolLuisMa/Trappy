@@ -12,3 +12,5 @@ def is_fin(conn : Conn, packet: Packet):
     return ((packet.tcp_flags & 1) > 0)
 def is_expected_data(conn : Conn, packet : Packet):
     return packet.tcp_seq_num == conn.ack_num
+def has_ack_flag(conn : Conn, packet : Packet):
+    return ((packet.tcp_flags & 16) > 0)
