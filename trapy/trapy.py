@@ -23,8 +23,15 @@ def dial(address) -> Conn:
     return conn
 
 def send(conn : Conn, data : bytes):
+    if conn.isClosed:
+        raise ConnException("La conexion esta cerrada")
     chunks = create_data_queue(data, conn.max_data_size)
     window = our_queue.queue()
+
+def send(conn: Conn, data: bytes) -> int:
+    if conn.isClosed:
+        raise ConnException("La conexion esta cerrada")
+    chunks = create_queue(data, conn.max_data_size)
     sent_data = 0
     last_received = conn.seq_num #last_received by the destination
     while(not(chunks.empty()) or not(window.empty())):
@@ -42,6 +49,8 @@ def send(conn : Conn, data : bytes):
 #Si uso trim, debo dejar claro que hubo un paquete que recibi bien pero no trabaje completo y por tanto perdi parte
 #Notemos que si deja de recibir un paquete, ahi mismo no procesa los siguientes, para preservar el orden
 def recv(conn: Conn, length: int) -> bytes:
+    if conn.isClosed:
+        raise ConnException("La conexion esta cerrada")
     buffer = b''
     timer = Chronometer()
     keep_going = True
@@ -61,4 +70,4 @@ def recv(conn: Conn, length: int) -> bytes:
     return trim(buffer, length)
 
 def close(conn: Conn):
-    pass
+    conn.close()
