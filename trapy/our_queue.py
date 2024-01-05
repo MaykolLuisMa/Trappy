@@ -1,23 +1,19 @@
+import collections
 class queue:
     def __init__(self):
-        self.elements = []
-        self.first = None
+        self.elements = collections.deque()
     
-    def peek(self):
-        return self.first
+    def peek(self, pos = 0):
+        return self.elements[pos]
     
     def pop(self):
-        if (len(self.elements) == 0):
-            return None
-        if (len(self.elements) == 1):
-            self.first = None
-        else: self.first = self.elements[1]
-        self.elements.pop(0)
+        return self.elements.popleft()
         
     def push(self, element):
-        if (len(self.elements) == 0):
-            self.first = element
         self.elements.append(element)
 
-    def isEmpty(self):
-        return (self.peek() == None)
+    def empty(self):
+        return (self.size() == 0)
+    
+    def size(self):
+        return len(self.elements)

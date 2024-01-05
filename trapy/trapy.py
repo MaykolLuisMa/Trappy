@@ -23,12 +23,12 @@ def dial(address) -> Conn:
     return conn
 
 def send(conn: Conn, data: bytes) -> int:
-    chunks = create_queue(data)
+    chunks = create_queue(data, conn.max_data_size)
     sent_data = 0
     keep_going = True
     last_received = conn.seq_num
     while (not(chunks.empty()) and keep_going):
-        ack_packet = send_n_chunks(conn, chunks, N_CHUNKS_PER_ACK)#se debe encargar de mandar el FIN
+        ack_packet = send_n_chunks(conn, chunks)
         while (last_received < ack_packet.tcp_ack_num):
             sent_data = sent_data + len(chunks.peek())
             chunks.pop()

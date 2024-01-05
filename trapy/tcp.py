@@ -1,5 +1,7 @@
 from conn import *
 from aux_flags_functions import *
+from utils import fragment_data
+import our_queue
 
 #Parametros
 N_CHUNKS_PER_ACK = 2
@@ -39,16 +41,34 @@ def send_confirmation(conn : Conn):
     conn.seq_num = conn.seq_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
     conn.ack_num = conn.ack_num + 1 #No recibiremos un ACK a la confirmacion, pero debemos actuar como si lo hubieramos recibido
 
-
 #Transmission
-def send_chunk(conn : Conn, chunk, is_last_chunk):
+def create_queue(data : bytes, max_data_size):
+    chunks = fragment_data(data, max_data_size)
+    cola = our_queue.queue()
+    for chunk in chunks:
+        cola.push(chunk)
+    return cola
+
+def send_chunk(conn : Conn, data : bytes, final_package = False, wait_for_ack = False):
     packet = create_packet(conn)
-    packet.data = chunk
-    packet.tcp_flags = 2 #ACK
-    if is_last_chunk:
-        packet.tcp_flags = 17 #ACK + FIN
-    ack_packet = send_till_its_received(conn, packet, is_ack, 2)
-    return (not(is_fin(conn, ack_packet)) and not(is_last_chunk))
+    packet.data = data
+    if final_package:
+        packet.tcp_flags = 17 # ACK + FIN
+    else:
+        packet.tcp_flags = 16 # ACK
+    conn.send(packet.build())
+    if wait_for_ack:
+        return wait_packet_with_condition(conn, has_ack_flag)
+    conn.seq_num = conn.seq_num + 1
+
+def send_n_chunks(conn : Conn, chunks : our_queue.queue):
+    for i in range(0, N_CHUNKS_PER_ACK - 1):
+        if(i + 1 == chunks.size()):
+            return send_chunk(conn, chunks.peek(i), final_package= True, wait_for_ack= True)
+        send_chunk(conn, chunks.peek(i))
+    if (N_CHUNKS_PER_ACK == chunks.size()):
+        return send_chunk(conn, chunks.peek(i), final_package= True, wait_for_ack= True)
+    return send_chunk(conn, chunks.peek(N_CHUNKS_PER_ACK - 1), wait_for_ack= True)
 
 def next_data(conn : Conn, fin_was_received):
     ack_packet = create_packet(conn)
@@ -79,12 +99,8 @@ def send_till_its_received(conn : Conn, packet : Packet, cond = always, timeout 
 
 def send_many_times(conn : Conn, packet : Packet):
     data = packet.build()
-#    timer = Chronometer()
     for i in range(0, 20):
         conn.send(data)
-#        timer.start(0.1)
-#        while not(timer.timeout()):
-#            pass
 
 def wait_packet_with_condition(conn : Conn, cond = always, timeout = 5, unknwn_source = False): #Q tiempo ponemos default el timeout?
     timer = Chronometer()
