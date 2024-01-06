@@ -22,9 +22,9 @@ def dial(address) -> Conn:
     send_confirmation(conn)
     return conn
 
-def send(conn : Conn, data : bytes):
-    chunks = create_data_queue(data, conn.max_data_size)
-    window = our_queue.queue()
+#def send(conn : Conn, data : bytes):
+#    chunks = create_data_queue(data, conn.max_data_size)
+#    window = our_queue.queue()
 
 def send(conn: Conn, data: bytes) -> int:
     chunks = create_data_queue(data, conn.max_data_size)
