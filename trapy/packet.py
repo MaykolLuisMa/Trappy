@@ -117,12 +117,17 @@ class Packet:
         
         self.update(tcp_check=0)
         tcp_header = self.build_tcp_header()
-        checksum = utils.make_checksum(tcp_header + self.data)
+        pseudo_tcp_header = self.get_pseudo_tcp_header()
+        checksum = utils.make_checksum(pseudo_tcp_header+tcp_header + self.data)
         self.update(tcp_check=checksum)
         self.tcp_header = self.build_tcp_header()
         
         self.update(ip_checksum=0)
         ip_header = self.build_ip_header()
+        #print("To make checksum:")
+        #print(ip_header)
+        #self.get_ip_header((self.ip_header + self.tcp_header + self.data)[:20])
+        #print(self.ip_header)
         checksum = utils.make_checksum(ip_header)
         self.update(ip_checksum=checksum)
         self.ip_header = self.build_ip_header()
@@ -187,13 +192,27 @@ class Packet:
         
         if (data != None): self.data = data
         self.tcp_header = self.build_tcp_header()
-
+    def get_pseudo_tcp_header(self):
+        pseudo_tcp_header = pack('!4s4sBBH', 
+                                 socket.inet_aton(self.source_ip), 
+                                 socket.inet_aton(self.dest_ip), 
+                                 0, 
+                                 socket.IPPROTO_TCP, 
+                                 len(self.tcp_header))
+        return pseudo_tcp_header
     def corrupted(self):
         tcp_checksum = self.tcp_checksum
         ip_checksum = self.ip_checksum
+        pseudo_tcp_header = self.get_pseudo_tcp_header()
         self.update(ip_checksum=0, tcp_check=0)
-        corrupted_tcp_checksum = utils.make_checksum(self.tcp_header + self.data) != tcp_checksum
+        corrupted_tcp_checksum = utils.make_checksum(pseudo_tcp_header + self.tcp_header + self.data) != tcp_checksum
         corrupted_ip_checksum = utils.make_checksum(self.ip_header) != ip_checksum
         self.tcp_checksum = tcp_checksum
         self.ip_checksum = ip_checksum
-        return corrupted_ip_checksum or corrupted_tcp_checksum
+        #print("-----------")
+        #print(corrupted_tcp_checksum)
+        #print(self.ip_header)
+        #print(corrupted_ip_checksum)
+        #print(self.data)
+        #print("-----------")
+        return corrupted_tcp_checksum
