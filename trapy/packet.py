@@ -1,7 +1,7 @@
 import random
 from struct import pack, unpack
 import socket
-import utils
+from .utils import *
 
 class Packet:
     def __init__(self):
@@ -118,7 +118,7 @@ class Packet:
         self.update(tcp_check=0)
         tcp_header = self.build_tcp_header()
         pseudo_tcp_header = self.get_pseudo_tcp_header()
-        checksum = utils.make_checksum(pseudo_tcp_header+tcp_header + self.data)
+        checksum = make_checksum(pseudo_tcp_header+tcp_header + self.data)
         self.update(tcp_check=checksum)
         self.tcp_header = self.build_tcp_header()
         
@@ -128,7 +128,7 @@ class Packet:
         #print(ip_header)
         #self.get_ip_header((self.ip_header + self.tcp_header + self.data)[:20])
         #print(self.ip_header)
-        checksum = utils.make_checksum(ip_header)
+        checksum = make_checksum(ip_header)
         self.update(ip_checksum=checksum)
         self.ip_header = self.build_ip_header()
         
@@ -205,8 +205,8 @@ class Packet:
         ip_checksum = self.ip_checksum
         pseudo_tcp_header = self.get_pseudo_tcp_header()
         self.update(ip_checksum=0, tcp_check=0)
-        corrupted_tcp_checksum = utils.make_checksum(pseudo_tcp_header + self.tcp_header + self.data) != tcp_checksum
-        corrupted_ip_checksum = utils.make_checksum(self.ip_header) != ip_checksum
+        corrupted_tcp_checksum = make_checksum(pseudo_tcp_header + self.tcp_header + self.data) != tcp_checksum
+        corrupted_ip_checksum = make_checksum(self.ip_header) != ip_checksum
         self.tcp_checksum = tcp_checksum
         self.ip_checksum = ip_checksum
         #print("-----------")

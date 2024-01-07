@@ -1,7 +1,7 @@
-from conn import *
-from aux_flags_functions import *
-from utils import fragment_data
-import our_queue
+from .conn import *
+from .aux_flags_functions import *
+from .utils import fragment_data
+from .our_queue import *
 
 #Parametros
 N_CHUNKS_PER_ACK = 2
@@ -42,12 +42,12 @@ def send_confirmation(conn : Conn):
 #Transmission
 def create_data_queue(data : bytes, max_data_size):
     chunks = fragment_data(data, max_data_size)
-    cola = our_queue.queue()
+    cola = queue()
     for chunk in chunks:
         cola.push(chunk)
     return cola
 
-def fill_window(conn : Conn, window : our_queue.queue, chunks : our_queue.queue):
+def fill_window(conn : Conn, window : queue, chunks : queue):
     if chunks.empty():
         return
     while (window.size() < N_CHUNKS_PER_WINDOW) and not(chunks.empty()):
@@ -68,7 +68,7 @@ def next_data(conn : Conn, fin_was_received):
         ack_packet.tcp_flags = 16 #ACK
     return send_till_its_received(conn, ack_packet, is_expected_data)
 
-def resend_timeout_packages(conn : Conn, window : our_queue.queue):
+def resend_timeout_packages(conn : Conn, window : queue):
     for i in range(0, min(N_CHUNKS_PER_WINDOW, window.size())):
         tuple = window.peek(i)
         if tuple[1].timeout():

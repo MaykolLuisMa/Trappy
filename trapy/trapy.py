@@ -1,9 +1,9 @@
-from conn import Conn
-from tcp import *
-from utils import *
+from .conn import Conn
+from .tcp import *
+from .utils import *
 
 def listen(address: str) -> Conn:
-    host, port = utils.parse_address(address)
+    host, port = parse_address(address)
     conn = Conn()
     conn.bind(host, port)
     return conn
@@ -14,7 +14,7 @@ def accept(conn) -> Conn:
     return conn
 
 def dial(address) -> Conn:
-    host, port = utils.parse_address(address)
+    host, port = parse_address(address)
     conn = Conn()
     conn.bind() #Lo ubico en un puerto libre
     conn.set_destination(host, port)
@@ -28,7 +28,7 @@ def dial(address) -> Conn:
 
 def send(conn: Conn, data: bytes) -> int:
     chunks = create_data_queue(data, conn.max_data_size)
-    window = our_queue.queue()
+    window = queue()
     sent_data = 0
     last_received = conn.seq_num #last_received by the destination
     while(not(chunks.empty()) or not(window.empty())):

@@ -1,10 +1,10 @@
 import socket
 import os
-from chronometer import *
-from packet import *
+from .chronometer import *
+from .packet import *
 from typing import Tuple
 from random import randint
-from utils import get_free_port
+from .utils import get_free_port
 
 class Conn:    
     def __init__(self, sock=None):
@@ -69,6 +69,7 @@ class Conn:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.dest_host + " : " + self.dest_port)
         address = (self.dest_host, self.dest_port)
+        print(data, address)
         return self.socket.sendto(data, address)
 
 

@@ -1,5 +1,5 @@
-from conn import Conn
-from packet import Packet
+from .conn import Conn
+from .packet import Packet
 def always(conn: Conn, packet: Packet):
     return True
 def is_sync(conn : Conn, packet: Packet):
