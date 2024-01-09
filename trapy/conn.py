@@ -1,18 +1,17 @@
 import socket
 import os
-from .chronometer import *
-from .packet import *
+from chronometer import *
+from packet import *
 from typing import Tuple
 from random import randint
-from .utils import get_free_port
+from utils import get_free_port
 
 class Conn:    
     def __init__(self, sock=None):
         if sock is None:
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
             sock.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
-        self.max_data_size = 512
-        self.bufsize = 20 + 20 + self.max_data_size
+        self.bufsize = 20 + 20 + 512 #512 es max_data_size
         self.source_host = None
         self.source_port = None
         self.dest_host = None
@@ -58,8 +57,6 @@ class Conn:
             except socket.timeout:
                 return (None, None)
             packet.get(packet_raw)
-            #print("Llego un paquete de " + packet.source_ip +" : " + str(packet.tcp_source_port))
-            #print("El paquete venia destinado a " + packet.dest_ip + " " + str(packet.tcp_dest_port))
             if ((packet.tcp_dest_port == self.source_port) or unknwn_source):
                 return (packet, address)
             self.socket.settimeout(timer.time_left())
@@ -69,7 +66,6 @@ class Conn:
         if self.dest_host == None:
             raise ConnException("No destination set for the socket " + self.dest_host + " : " + self.dest_port)
         address = (self.dest_host, self.dest_port)
-        print(data, address)
         return self.socket.sendto(data, address)
 
 

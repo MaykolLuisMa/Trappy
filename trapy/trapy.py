@@ -1,6 +1,6 @@
-from .conn import Conn
-from .tcp import *
-from .utils import *
+from conn import Conn
+from tcp import *
+from utils import *
 
 def listen(address: str) -> Conn:
     host, port = parse_address(address)
@@ -22,15 +22,14 @@ def dial(address) -> Conn:
     send_confirmation(conn)
     return conn
 
-#def send(conn : Conn, data : bytes):
-#    chunks = create_data_queue(data, conn.max_data_size)
-#    window = our_queue.queue()
-
 def send(conn: Conn, data: bytes) -> int:
-    chunks = create_data_queue(data, conn.max_data_size)
-    window = queue()
+    if conn.isClosed:
+        raise ConnException("La conexion esta cerrada")
+    chunks = create_data_queue(data, MAX_DATA_SIZE)
+    window = our_queue.queue()
     sent_data = 0
     last_received = conn.seq_num #last_received by the destination
+    print("BEGGINING TRANSMISSION")
     while(not(chunks.empty()) or not(window.empty())):
         fill_window(conn, window, chunks)
         ack_packet = wait_packet_with_condition(conn, has_ack_flag, MAXIMUM_WAIT_BEFORE_RESEND)
@@ -38,12 +37,12 @@ def send(conn: Conn, data: bytes) -> int:
             sent_data = sent_data + len(window.pop()[0])
             last_received = last_received + 1
         if is_fin(conn, ack_packet):
+            print("FIN ORDER RECEIVED")
             break
         resend_timeout_packages(conn, window)
-    send_confirmation(conn)
+    send_confirmation(conn, "FIN") #El segundo parametro es pijeria para imprimir lindo
     return sent_data
 
-#Si uso trim, debo dejar claro que hubo un paquete que recibi bien pero no trabaje completo y por tanto perdi parte
 #Notemos que si deja de recibir un paquete, ahi mismo no procesa los siguientes, para preservar el orden
 def recv(conn: Conn, length: int) -> bytes:
     if conn.isClosed:
@@ -60,11 +59,18 @@ def recv(conn: Conn, length: int) -> bytes:
             if packet is not None:
                 buffer = buffer + packet.data
                 if (is_fin(conn, packet) or (len(buffer) > length)):
+                    if(len(buffer) > length):
+                        print("RECQUIRED AMOUNT OF DATA HAS BEEN READ")
+                    else:
+                        print("LAST PACKET OF SENDER RECEIVED, WITHOUT COMPLETE RECQUIRED AMOUNT OF DATA")
                     keep_going = False
                     break
             break #Caso en el q se agoto el timer
         packet = next_data(conn, not(keep_going))
+        if not keep_going:
+            print("FIN CONFIRMATION RECEIVED")
     return trim(buffer, length)
 
 def close(conn: Conn):
     conn.close()
+    print("CONNECTION CLOSED")
